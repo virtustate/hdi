@@ -1,6 +1,6 @@
-name = Zink
+name = HDI
 core = 7.x
-description = Zink corporate site base install.
+description = HDI corporate site base install.
 
 ; Core
 dependencies[] = block
