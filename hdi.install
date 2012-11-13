@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up the site for this profile.
+ */
+ 
+$default_theme = 'bartik';
+$admin_theme = 'rubik'; 
+ 
+function hdi_install() {
+	hdi_enable_themes();
+	//hdi_install_blocks();
+	//hdi_install_menus();
+	//hdi_install_terms();
+}
+
+function hdi_enable_themes() {
+  // Enable the admin theme.
+  db_update('system')
+    ->fields(array('status' => 1))
+    ->condition('type', 'theme')
+    ->condition('name', 'rubik')
+    ->execute();
+  variable_set('admin_theme', 'rubik');
+  variable_set('node_admin_theme', '1');
+}
+
+function hdi_install_blocks() {
+  // Enable some standard blocks.
+  $values = array(
+    array(
+      'module' => 'search',
+      'delta' => 'form',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -13,
+      'region' => 'header',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'main',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -5,
+      'region' => 'content',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'system',
+      'delta' => 'main-menu',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -6,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),
+    array(
+      'module' => 'user',
+      'delta' => 'login',
+      'theme' => $default_theme,
+      'status' => 1,
+      'weight' => -15,
+      'region' => 'sidebar_first',
+      'pages' => '',
+      'cache' => -1,
+    ),  	
+  );
+  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
+  foreach ($values as $record) {
+    $query->values($record);
+  }
+  $query->execute();
+}
+
+function hdi_install_menus() {
+      $item = array(
+        'link_title' => st('Home'),
+	'link_path' => '<front>',
+	'menu_name' => 'main-menu',
+  );
+  menu_link_save($item);
+  menu_rebuild();
+}
+
+function hdi_install_terms() {
+  //taxonomy_vocabulary_save((object) array('name' => 'blah', 'machine_name' => 'vocab_blah'));
+  hdi_create_taxonomy_term('Topic A', 2);
+  hdi_create_taxonomy_term('Topic B', 2);
+}
+
+function hdi_create_taxonomy_term($name, $vid) {
+  $term = new stdClass();
+  $term->name = $name;
+  $term->vid = $vid;
+  taxonomy_term_save($term);  
+}
